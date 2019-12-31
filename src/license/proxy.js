@@ -12,23 +12,22 @@ function proxy(target, prefix = []) {
             if (typeof propKey != "string") return _target[propKey];
 
             let key = [...prefix, propKey].join(".");
-            let [isAuth, meta] = propsTree.isAuthorizated(key);
-            if (isAuth) {
-                return _target[propKey];
+            let meta = propsTree.getGrantInfo(key);
+            if (!meta.grant) {
+                let levelNode = levelVisitor.visit(meta.level);
+                let desc =
+                    levelNode.name +
+                    (levelNode.tips ? `(${levelNode.tips})` : "");
+                console.warn(`模块 ${propKey} 未授权, 需要的许可级别为${desc}`);
+                return {};
             }
 
-            if (meta.hasOwnProperty("needLevel")) {
-                if (meta.hasOwnProperty("needLevel")) {
-                    let levelNode = levelVisitor.visit(meta["needLevel"]);
-                    let desc =
-                        levelNode.name +
-                        (levelNode.tips ? `(${levelNode.tips})` : "");
-                    throw `模块 ${propKey} 未授权, 需要的许可级别为${desc}`;
+            if (meta.grant) {
+                if (meta.proxy) {
+                    return proxy(_target[propKey], [...prefix, propKey]);
                 }
-            }
 
-            if (meta.hasOwnProperty("proxy")) {
-                return proxy(_target[propKey], [...prefix, propKey]);
+                return _target[propKey];
             }
         }
     });

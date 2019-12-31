@@ -41,21 +41,22 @@ export default function(
 
             if (typeof propKey != "string") return _target[propKey];
 
-            let [isAuth, meta] = propsTree.isAuthorizated(propKey);
-            if (isAuth) {
-                return _target[propKey];
-            }
-
-            if (meta.hasOwnProperty("needLevel")) {
-                let levelNode = levelVisitor.visit(meta["needLevel"]);
+            let meta = propsTree.getGrantInfo(propKey);
+            if (!meta.grant) {
+                let levelNode = levelVisitor.visit(meta.level);
                 let desc =
                     levelNode.name +
                     (levelNode.tips ? `(${levelNode.tips})` : "");
-                throw `模块 ${propKey} 未授权, 需要的许可级别为${desc}`;
+                console.warn(`模块 ${propKey} 未授权, 需要的许可级别为${desc}`);
+                return {};
             }
 
-            if (meta.hasOwnProperty("proxy")) {
-                return proxy(_target[propKey], [propKey]);
+            if (meta.grant) {
+                if (meta.proxy) {
+                    return proxy(_target[propKey], [propKey]);
+                }
+
+                return _target[propKey];
             }
         }
     });

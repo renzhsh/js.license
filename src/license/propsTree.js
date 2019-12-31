@@ -20,41 +20,61 @@ class PropsTree {
         /**
          * 把未授权的模块构建成map,设置元属性：
          * {
-         *      proxy: true , // 需要返回代理，表示有子模块未授权
-         *      needLevel:3 // 表示当前模块需要授权级别为3，但授权级别未达到
+         *      proxy: true, // 需要返回代理，表示有子模块未授权
+         *      level: 3, // 表示当前模块需要授权级别为3
+         *      grant: true // 已授权
          * }
          */
-        for (var prop in manifest) {
-            if (manifest[prop] <= this.AuthLevel) continue;
 
+        // 先排序，保证层级关系
+        let keys = Object.keys(manifest).sort();
+
+        for (var prop of keys) {
             let arrs = prop.split(".");
             let meta = {
-                proxy: true
+                proxy: manifest[prop] > this.AuthLevel //子模块未授权
             };
             for (var i = 1; i < arrs.length; i++) {
                 let key = arrs.splice(0, i).join(".");
                 if (this.props.has(key)) {
-                    meta = Object.assign({}, this.props, meta);
+                    meta = Object.assign({}, this.props.get(key), meta);
                 }
 
                 this.props.set(key, meta);
             }
 
-            this.props.set(prop, {
-                needLevel: manifest[prop]
-            });
+            meta = {
+                level: manifest[prop],
+                grant: manifest[prop] <= this.AuthLevel
+            };
+            if (this.props.has(prop)) {
+                meta = Object.assign({}, this.props.get(key), meta);
+            }
+
+            this.props.set(prop, meta);
         }
     }
 
     /**
-     * 模块是否授权
+     * 获取授权信息
      * @param {String} module
      */
-    isAuthorizated(module) {
+    getGrantInfo(module) {
         if (!this.props.has(module)) {
-            return [true, {}];
+            return {
+                level: 0,
+                grant: true,
+                proxy: false
+            };
         } else {
-            return [false, this.props.get(module)];
+            return Object.assign(
+                {
+                    level: 0,
+                    grant: true,
+                    proxy: false
+                },
+                this.props.get(module)
+            );
         }
     }
 }
