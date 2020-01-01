@@ -1,15 +1,31 @@
-class PropsTree {
-    constructor() {
+import { Verifier, PrivateKey as defaultPrivateKey } from "./key";
+import levelVisitor from "./levelVisitor";
+import NetSubject from "./netSubject";
+
+/**
+ *
+ */
+export default class PropsTree {
+    /**
+     *
+     * @param {Object} manifest 授权清单
+     * @param {*} option 选项
+     */
+    constructor(manifest, option = {}) {
+        this.manifest = manifest;
+        this.visitPolicy = option.policy || {};
+
+        this.privateKey = option.privateKey || defaultPrivateKey;
+
+        // 定义授权级别
+        if (option.levelDefs) {
+            levelVisitor.levels = option.levelDefs;
+        }
+
         this.props = new Map();
-        this._authLevel = null;
-    }
 
-    get AuthLevel() {
-        return this._authLevel;
-    }
-
-    set AuthLevel(val) {
-        this._authLevel = val;
+        // host, level
+        this.licenseInfo = null;
     }
 
     /**
@@ -32,7 +48,7 @@ class PropsTree {
         for (var prop of keys) {
             let arrs = prop.split(".");
             let meta = {
-                proxy: manifest[prop] > this.AuthLevel //子模块未授权
+                proxy: manifest[prop] > this.licenseInfo.level //子模块未授权
             };
             for (var i = 1; i < arrs.length; i++) {
                 let key = arrs.splice(0, i).join(".");
@@ -45,7 +61,7 @@ class PropsTree {
 
             meta = {
                 level: manifest[prop],
-                grant: manifest[prop] <= this.AuthLevel
+                grant: manifest[prop] <= this.licenseInfo.level
             };
             if (this.props.has(prop)) {
                 meta = Object.assign({}, this.props.get(key), meta);
@@ -77,6 +93,67 @@ class PropsTree {
             );
         }
     }
-}
 
-export default new PropsTree();
+    /**
+     *
+     * @param {*} target
+     * @param {*} prefix
+     */
+    visit(target, prefix = []) {
+        if (typeof target != "object") {
+            console.warn(`授权模块必须是Object类型: type is ${typeof target}`);
+            return target;
+        }
+        return new Proxy(target, {
+            get: (_target, propKey) => {
+                if (!this.licenseInfo) {
+                    this.licenseInfo = Verifier(
+                        target.licenseKey || "",
+                        target.version || "",
+                        this.privateKey
+                    );
+
+                    this.subject = new NetSubject(
+                        this.licenseInfo.host,
+                        this.visitPolicy
+                    );
+
+                    this.visitManifest(this.manifest);
+                }
+
+                if (!this.subject.isAllowed) {
+                    console.warn(
+                        "In License: 未授权的主机地址：" + location.hostname
+                    );
+                    return {};
+                }
+
+                if (typeof propKey != "string") return _target[propKey];
+
+                let key = [...prefix, propKey].join(".");
+                let meta = this.getGrantInfo(key);
+                if (!meta.grant) {
+                    let levelNode = levelVisitor.visit(meta.level);
+                    let desc =
+                        levelNode.name +
+                        (levelNode.tips ? `(${levelNode.tips})` : "");
+                    console.warn(
+                        `模块 ${propKey} 未授权, 需要的许可级别为${desc}`
+                    );
+                    return {};
+                }
+
+                if (meta.grant) {
+                    if (meta.proxy) {
+                        return this.visit(_target[propKey], [
+                            ...prefix,
+                            propKey
+                        ]);
+                    }
+
+                    return _target[propKey];
+                }
+            }
+        });
+    }
+}

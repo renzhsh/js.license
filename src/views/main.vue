@@ -1,15 +1,22 @@
 <template>
-    <div>{{ Obj }}</div>
+    <div>{{ "Obj" }}</div>
 </template>
 <script>
 import _Obj from "./obj";
+_Obj.licenseKey =
+    "Zh0feUkKDVHRWMikdocdI0BKtxyO1ksiD364mS2Bf8Kj4iH0ELNn1P4vhHgcLYQc4Hgv8ZWEO3cZwkTnIg+9yOXs5IoYt9j12SX0GXxsHcupdPmFFyi6mZeykRDMsj02zdWQrDAH09pwDNxGwjzHjgzNF2195IEEEJky+MyrgMU=";
+import { Generator, PublicKey } from "license";
 export default {
     created() {
-        console.log("Object Map", this.Obj.Map);
-        console.log("function Control", this.Obj.Control);
-        console.log("class CRS", this.Obj.CRS);
-        console.log("object CRS.Simple", this.Obj.CRS.Simple);
-        console.log("get CRS.Baidu", this.Obj.CRS.Baidu);
+        // let license = Generator(
+        //     "baidu.com",
+        //     3,
+        //     12,
+        //     PublicKey,
+        //     "1.0.0",
+        //     "1.3.0-rc1"
+        // );
+        // console.log(license);
     },
     data() {
         return {

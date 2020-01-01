@@ -3,7 +3,8 @@ module.exports = {
     chainWebpack: config => {
         if (process.env.NODE_ENV === "production") {
             config.externals({
-                vue: "Vue"
+                vue: "Vue",
+                jsencrypt: "jsencrypt"
             });
         }
 

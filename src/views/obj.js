@@ -31,15 +31,19 @@ const Obj = {
     },
     Layers: [1, 2, 3, 4],
     CRS: new _CRS(),
-    [sys]: "this is Symbol"
+    [sys]: "this is Symbol",
+    version: "1.3.0"
 };
 
 const manifest = {
+    Control: 0,
+    "CRS.ESPG": 0,
     Map: 0,
-    Control: 2,
-    CRS: 2,
-    "CRS.ESPG": 2,
-    "CRS.Simple": 2,
-    "CRS.Baidu": 3
+    "CRS.Simple": 0,
+    CRS: 0,
+    "CRS.Baidu": 2
 };
-export default License(Obj, manifest);
+
+var license = new License(manifest);
+
+export default license.proxy(Obj);
