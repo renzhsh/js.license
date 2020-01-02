@@ -3,6 +3,11 @@
     "version": "1.0.0-rc",
     "description": "npm包授权管理",
     "main": "js.license.umd.min.js",
+    "keywords": [
+        "npm",
+        "license",
+        "licenseKey"
+    ],
     "repository": {
         "type": "git",
         "url": "https://github.com/renzhsh/js.license"

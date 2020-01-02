@@ -2,7 +2,7 @@ import JSEncrypt from "jsencrypt";
 
 /**
  * 生成licenseKey
- * @param {String | String[]} host 授权的主机地址
+ * @param {String} host 授权的主机地址
  * @param {Number} level 授权级别
  * @param {Number} expired 有限期限 (单位/月)
  * @param {String} publicKey 公钥

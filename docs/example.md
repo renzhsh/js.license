@@ -59,7 +59,9 @@ class _CRS { ... }
 
 const Obj = { ... }
 
-var license = new License(manifest);
+var license = new License(manifest, {
+    privateKey: 'xxx'
+});
 
 export default license.proxy(Obj);
 ```
@@ -75,9 +77,9 @@ export default license.proxy(Obj);
 首先从发布者那里拿到`licenseKey`，否则只能使用免费版。
 
 ```js
-import Obj from 'obj';
+import Obj from 'obj`;
 
-Obj.licenseKey='...'
+Obj.licenseKey='...';
 ```
 
 如果没有拿到`licenseKey`，使用者只能访问如下的`Obj`：
@@ -89,5 +91,3 @@ Obj.licenseKey='...'
     CRS: {}
 }
 ```
-
-请参考 [License 使用文档](./docs/readme.md)

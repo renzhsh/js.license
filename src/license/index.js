@@ -1,5 +1,5 @@
 import PropsTree from "./propsTree";
-export { Generator, PublicKey } from "./key";
+export { Generator, PublicKey, PrivateKey } from "./key";
 
 export default class LicenseManager {
     /**
