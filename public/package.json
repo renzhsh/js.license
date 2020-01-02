@@ -1,0 +1,20 @@
+{
+    "name": "js.license",
+    "version": "1.0.0-rc.1",
+    "description": "npm包授权管理",
+    "main": "js.license.umd.min.js",
+    "keywords": [
+        "npm",
+        "license",
+        "licenseKey"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/renzhsh/js.license"
+    },
+    "author": "renzhsh",
+    "license": "MIT",
+    "dependencies": {
+        "jsencrypt": "^3.0.0-rc.1"
+    }
+}
